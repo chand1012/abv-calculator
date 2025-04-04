@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alcohol Content Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // Automatically apply dark mode based on user preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen p-4">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-center">Alcohol Content Calculator</h1>
+
+    <div id="items-container" class="space-y-4">
+      <!-- Items will be added here -->
+    </div>
+
+    <div class="flex justify-center mt-6">
+      <button onclick="addItem()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow">Add Item</button>
+    </div>
+
+    <div id="total" class="mt-8 text-center space-y-2 text-lg">
+      <div>Total Alcohol: 0.00 ml</div>
+      <div>Total Alcohol: 0.00 oz</div>
+      <div>ABV: 0.00%</div>
+      <div>Proof: 0.00</div>
+    </div>
+
+    <div class="mt-10 flex justify-center gap-6">
+      <a href="https://x.com/Chand1012Dev" target="_blank" class="flex items-center gap-2 hover:text-indigo-400">
+        <i data-lucide="twitter" class="w-8 h-8"></i>
+      </a>
+      <a href="https://github.com/chand1012/abv-calculator" target="_blank" class="flex items-center gap-2 hover:text-indigo-400">
+        <i data-lucide="github" class="w-8 h-8"></i>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function addItem() {
+      const container = document.getElementById('items-container');
+
+      const div = document.createElement('div');
+      div.className = 'item flex flex-wrap gap-2 items-center bg-gray-700 p-4 rounded-lg shadow';
+
+      div.innerHTML = `
+        <input type="number" placeholder="Volume" step="any" oninput="updateTotal()" class="w-24 p-2 rounded bg-gray-800 text-white border border-gray-600" />
+        <select onchange="updateTotal()" class="w-24 p-2 rounded bg-gray-800 text-white border border-gray-600">
+          <option value="ml">ml</option>
+          <option value="oz">oz</option>
+        </select>
+        <input type="number" placeholder="ABV (%)" step="any" oninput="updateTotal()" class="w-28 p-2 rounded bg-gray-800 text-white border border-gray-600" />
+        <button onclick="this.parentElement.remove(); updateTotal();" class="ml-auto bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded">Remove</button>
+      `;
+
+      container.appendChild(div);
+    }
+
+    function updateTotal() {
+      const items = document.querySelectorAll('#items-container .item');
+      let totalVolume = 0;
+      let totalAlcohol = 0;
+
+      items.forEach(item => {
+        const inputs = item.querySelectorAll('input');
+        const select = item.querySelector('select');
+
+        let volume = parseFloat(inputs[0].value) || 0;
+        const abv = parseFloat(inputs[1].value) || 0;
+        const unit = select.value;
+
+        // Convert oz to ml
+        if (unit === 'oz') {
+          volume *= 29.5735;
+        }
+
+        totalVolume += volume;
+        totalAlcohol += volume * (abv / 100);
+      });
+
+      const totalAlcoholOz = totalAlcohol / 29.5735;
+      const abvPercent = totalVolume > 0 ? (totalAlcohol / totalVolume) * 100 : 0;
+      const proof = abvPercent * 2;
+
+      document.getElementById('total').innerHTML = `
+        <div>Total Alcohol: ${totalAlcohol.toFixed(2)} ml</div>
+        <div>Total Alcohol: ${totalAlcoholOz.toFixed(2)} oz</div>
+        <div>ABV: ${abvPercent.toFixed(2)}%</div>
+        <div>Proof: ${proof.toFixed(2)}</div>
+      `;
+    }
+
+    // Add initial item
+    addItem();
+
+    // Load Lucide icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>
